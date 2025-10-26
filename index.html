@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Special Song for You</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0a0f 0%, #3d1a29 50%, #1a0a0f 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Анімований фон */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 0, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* Привітання */
+        .greeting {
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 1s ease-in forwards;
+        }
+
+        .greeting h1 {
+            font-size: 2em;
+            color: #ff6b9d;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .greeting p {
+            font-size: 1.1em;
+            color: #ffb3d9;
+            font-style: italic;
+        }
+
+        /* Аудіо контролер */
+        .audio-container {
+            margin: 30px 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-in 0.5s forwards;
+        }
+
+        .play-button {
+            background: linear-gradient(135deg, #8B0000 0%, #ff1744 100%);
+            border: none;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(139, 0, 0, 0.6);
+        }
+
+        .play-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 23, 68, 0.8);
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        .play-icon {
+            width: 0;
+            height: 0;
+            border-left: 20px solid white;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 5px;
+        }
+
+        .pause-icon {
+            display: none;
+            width: 20px;
+            height: 24px;
+            position: relative;
+        }
+
+        .pause-icon::before,
+        .pause-icon::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 24px;
+            background: white;
+        }
+
+        .pause-icon::before { left: 0; }
+        .pause-icon::after { right: 0; }
+
+        .play-button.playing .play-icon {
+            display: none;
+        }
+
+        .play-button.playing .pause-icon {
+            display: block;
+        }
+
+        /* Текст пісні */
+        .lyrics-container {
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .lyric-line {
+            font-size: 1.3em;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(20px);
+            text-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+            max-width: 90%;
+        }
+
+        .lyric-line.active {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Підпис */
+        .signature {
+            margin-top: 50px;
+            font-size: 1.2em;
+            color: #ff6b9d;
+            opacity: 0;
+            font-style: italic;
+        }
+
+        .signature.show {
+            animation: fadeIn 1s ease-in forwards;
+        }
+
+        /* Прогрес бар */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .progress-bar.show {
+            opacity: 1;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B0000 0%, #ff1744 100%);
+            width: 0%;
+            transition: width 0.1s linear;
+            box-shadow: 0 0 10px rgba(255, 23, 68, 0.5);
+        }
+
+        /* Адаптація під мобільні */
+        @media (max-width: 600px) {
+            .greeting h1 {
+                font-size: 1.5em;
+            }
+
+            .lyric-line {
+                font-size: 1.1em;
+            }
+
+            .play-button {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="greeting">
+            <h1>🎵 Why'd you only call me when you're high? 🎵</h1>
+            <p>Від Тьоми</p>
+        </div>
+
+        <div class="audio-container">
+            <button class="play-button" id="playButton">
+                <div class="play-icon"></div>
+                <div class="pause-icon"></div>
+            </button>
+            
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="lyrics-container" id="lyricsContainer">
+            <!-- Тексти будуть додаватися динамічно -->
+        </div>
+
+        <div class="signature" id="signature">
+            — Тьома
+        </div>
+    </div>
+
+    <!-- Аудіо елемент (невидимий) -->
+    <audio id="audio" preload="auto">
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Telegram Web App API
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Елементи
+        const audio = document.getElementById('audio');
+        const playButton = document.getElementById('playButton');
+        const lyricsContainer = document.getElementById('lyricsContainer');
+        const signature = document.getElementById('signature');
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+
+        const lyrics = [
+    ["And I can't see you here, wonderin' where i might", 1.9, "#ff6b9d"],
+    ["It sort of feels like I'm runnin' out of time", 7.9, "#ffb3d9"],
+    ["I haven't found all I was hopin' to find", 12.9, "#ff6b9d"],
+    ["You said you gotta be up in the mornin'", 18.0, "#ffb3d9"],
+    ["Gonna have an early night", 19.5, "#ff6b9d"],
+    ["And you're startin' to bore me, baby", 21.0, "#ffb3d9"],
+    ["Why'd you only call me when you're high?", 22.30, "#ff1744"],
+];
+
+        let currentLyricIndex = 0;
+        let isPlaying = false;
+
+        // Кнопка Play/Pause
+        playButton.addEventListener('click', () => {
+            if (!isPlaying) {
+                audio.play();
+                playButton.classList.add('playing');
+                progressBar.classList.add('show');
+                isPlaying = true;
+                
+                // Вібрація Telegram
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('medium');
+                }
+            } else {
+                audio.pause();
+                playButton.classList.remove('playing');
+                isPlaying = false;
+            }
+        });
+
+        // Оновлення прогресу
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressFill.style.width = progress + '%';
+            
+            // Показ текстів
+            showLyricsAtTime(audio.currentTime);
+        });
+
+        // Функція показу текстів
+        function showLyricsAtTime(currentTime) {
+            if (currentLyricIndex < lyrics.length) {
+                const [text, time, color] = lyrics[currentLyricIndex];
+                
+                if (currentTime >= time) {
+                    const lyricLine = document.createElement('div');
+                    lyricLine.className = 'lyric-line';
+                    lyricLine.style.color = color;
+                    lyricLine.textContent = text;
+                    
+                    lyricsContainer.appendChild(lyricLine);
+                    
+                    setTimeout(() => {
+                        lyricLine.classList.add('active');
+                    }, 50);
+                    
+                    // Вібрація при появі тексту
+                    if (tg.HapticFeedback) {
+                        tg.HapticFeedback.impactOccurred('light');
+                    }
+                    
+                    currentLyricIndex++;
+                }
+            }
+        };
+
+        // Коли пісня закінчилася
+        audio.addEventListener('ended', () => {
+            playButton.classList.remove('playing');
+            isPlaying = false;
+            signature.classList.add('show');
+            
+            // Великий вібро-фідбек в кінці
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+        });
+
+        // Обробка помилок
+        audio.addEventListener('error', (e) => {
+            alert('Помилка завантаження аудіо. Переконайтеся що файл song.mp3 завантажений!');
+            console.error('Audio error:', e);
+        });
+    </script>
+</body>
+</html>
