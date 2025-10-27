@@ -1,0 +1,331 @@
+/* ========== ЗАГАЛЬНІ СТИЛІ ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a0a0f 0%, #3d1a29 50%, #1a0a0f 100%);
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* ========== АНІМОВАНИЙ ФОН ========== */
+.background-animation {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(139, 0, 0, 0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes rotate {
+    from { 
+        transform: rotate(0deg); 
+    }
+    to { 
+        transform: rotate(360deg); 
+    }
+}
+
+/* ========== ОСНОВНИЙ КОНТЕЙНЕР ========== */
+.container {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+}
+
+/* ========== ПРИВІТАННЯ ========== */
+.greeting {
+    margin-bottom: 30px;
+    opacity: 0;
+    animation: fadeIn 1s ease-in forwards;
+}
+
+.greeting h1 {
+    font-size: 2em;
+    color: #ff6b9d;
+    text-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+}
+
+.greeting p {
+    font-size: 1.1em;
+    color: #ffb3d9;
+    font-style: italic;
+}
+
+/* ========== АУДІО КОНТЕЙНЕР ========== */
+.audio-container {
+    margin: 30px 0;
+    opacity: 0;
+    animation: fadeIn 1s ease-in 0.5s forwards;
+}
+
+/* ========== КНОПКА PLAY/PAUSE ========== */
+.play-button {
+    background: linear-gradient(135deg, #8B0000 0%, #ff1744 100%);
+    border: none;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 30px rgba(139, 0, 0, 0.6);
+    position: relative;
+}
+
+.play-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.8);
+}
+
+.play-button:active {
+    transform: scale(0.95);
+}
+
+.play-button:focus {
+    outline: none;
+    box-shadow: 0 0 40px rgba(255, 23, 68, 0.8);
+}
+
+/* ========== ІКОНКА PLAY ========== */
+.play-icon {
+    width: 0;
+    height: 0;
+    border-left: 20px solid white;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    margin-left: 5px;
+    transition: opacity 0.3s;
+}
+
+/* ========== ІКОНКА PAUSE ========== */
+.pause-icon {
+    display: none;
+    width: 20px;
+    height: 24px;
+    position: relative;
+    transition: opacity 0.3s;
+}
+
+.pause-icon::before,
+.pause-icon::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 24px;
+    background: white;
+}
+
+.pause-icon::before { 
+    left: 0; 
+}
+
+.pause-icon::after { 
+    right: 0; 
+}
+
+/* Коли грає музика */
+.play-button.playing .play-icon {
+    display: none;
+}
+
+.play-button.playing .pause-icon {
+    display: block;
+}
+
+/* ========== ПРОГРЕС БАР ========== */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin: 20px 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.progress-bar.show {
+    opacity: 1;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B0000 0%, #ff1744 100%);
+    width: 0%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(255, 23, 68, 0.5);
+}
+
+/* ========== КОНТЕЙНЕР ТЕКСТІВ ========== */
+.lyrics-container {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 0;
+}
+
+/* ========== РЯДКИ ТЕКСТУ ========== */
+.lyric-line {
+    font-size: 1.3em;
+    line-height: 1.6;
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(20px) scale(0.95);
+    text-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+    max-width: 90%;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lyric-line.active {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0) scale(1);
+    animation: blurFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ========== ПІДПИС ========== */
+.signature {
+    margin-top: 50px;
+    font-size: 1.2em;
+    color: #ff6b9d;
+    opacity: 0;
+    font-style: italic;
+    transition: opacity 1s ease;
+}
+
+.signature.show {
+    animation: fadeIn 1s ease-in forwards;
+}
+
+/* ========== АНІМАЦІЇ ========== */
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Нова анімація з blur ефектом */
+@keyframes blurFadeIn {
+    0% {
+        opacity: 0;
+        filter: blur(10px);
+        transform: translateY(20px) scale(0.95);
+    }
+    50% {
+        opacity: 0.5;
+        filter: blur(5px);
+    }
+    100% {
+        opacity: 1;
+        filter: blur(0px);
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ========== АДАПТАЦІЯ ПІД МОБІЛЬНІ ========== */
+@media (max-width: 600px) {
+    .greeting h1 {
+        font-size: 1.5em;
+    }
+
+    .greeting p {
+        font-size: 1em;
+    }
+
+    .lyric-line {
+        font-size: 1.1em;
+    }
+
+    .play-button {
+        width: 70px;
+        height: 70px;
+    }
+
+    .play-icon {
+        border-left-width: 16px;
+        border-top-width: 10px;
+        border-bottom-width: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    .lyrics-container {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 400px) {
+    .greeting h1 {
+        font-size: 1.3em;
+    }
+
+    .lyric-line {
+        font-size: 1em;
+    }
+
+    .play-button {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* ========== ТЕМНА ТЕМА TELEGRAM ========== */
+@media (prefers-color-scheme: dark) {
+    /* Стилі вже темні за замовчуванням */
+}
+
+/* ========== СВІТЛА ТЕМА TELEGRAM (якщо потрібно) ========== */
+@media (prefers-color-scheme: light) {
+    body {
+        background: linear-gradient(135deg, #ffe0e9 0%, #ffc1d4 50%, #ffe0e9 100%);
+    }
+
+    .greeting h1 {
+        color: #8B0000;
+        text-shadow: 0 0 20px rgba(139, 0, 0, 0.3);
+    }
+
+    .greeting p {
+        color: #c41e3a;
+    }
+
+    .lyric-line {
+        color: #1a0a0f;
+        text-shadow: 0 0 10px rgba(139, 0, 0, 0.2);
+    }
+
+    .signature {
+        color: #8B0000;
+    }
+}
